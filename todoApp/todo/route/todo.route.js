@@ -7,10 +7,9 @@ const {
     createtodo,
     updatetodo,
     deletetodo,
-    blocktodo,
-    favouritetodo,
     markDonetodo,
-    getDailytodo
+    getDailytodo,
+    getDonetodo,
 } =require("../controller/todo.controller");
 
 router.post("/", createtodo);
@@ -29,6 +28,5 @@ router.delete("/:id", deletetodo);
 
 router.patch("/block/:id", markDonetodo);
 
-router.patch("/favourite/:id", favouritetodo);
 
 module.exports = router;

@@ -36,16 +36,13 @@ const getSingletodo = asyncHandler(async (req, res)=>{
 const createtodo = asyncHandler(async(req, res)=>{
     try {
         const todoData = req.body;
-        let {firstname, lastname, email, phonenumber} = todoData;
-        const emails = Array.isArray(email)?email:[email];
-        const phonenumbers = Array.isArray(phonenumber)?phonenumber:[phonenumber]
-
+        let {title, description, created_by, due_date} = todoData;
 
         const newtodo = await todoModel.create({
-            firstname,
-            lastname,
-            email: emails,
-            phonenumber: phonenumbers 
+            title,
+            description,
+            created_by,
+            due_date, 
         });
 
         res.status(200).json({success:true, data:newtodo})
@@ -59,15 +56,6 @@ const updatetodo = asyncHandler(async(req,res)=>{
      const id = req.params.id;
      const update = req.body;
     try {
-        if(update.email && !Array.isArray(update.email)){
-            update.email=[update.email]
-        }
-
-        if(update.phonenumber && !Array.isArray(update.phonenumber)){
-            update.phonenumber=[update.phonenumber]
-        }
-
-
         const updatetodo = await todoModel.findByIdAndUpdate(id, update, {
             new:true,
             runValidators:true
@@ -103,7 +91,7 @@ const markDonetodo = asyncHandler(async(req, res)=>{
         if(!todo){
             console.log(`No todo with id,${id} found,\nTry a new id`);
         }
-        todo.blocked = !todo.blocked
+        todo.task_done = !todo.task_done
         await todo.save();
 
         res.status(200).json({success:true, data:todo});
@@ -112,27 +100,13 @@ const markDonetodo = asyncHandler(async(req, res)=>{
     }
 })
 
-//favourite todo
-const favouritetodo = asyncHandler(async(req, res)=>{
-     const id = req.params.id;
-    try {
-        const todo = await todoModel.findById(id);
-        if(!todo){
-            console.log(`No todo with id,${id} found,\nTry a new id`);
-        }
-        todo.favourite = !todo.favourite
-        await todo.save();
 
-        res.status(200).json({success:true, data:todo});
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
-})
-
-//getFavorite todo
+//getDaily todo
 const getDailytodo = asyncHandler(async(req, res)=>{
+    var date = new Date();
+    let today = date.getDate() 
     try {
-        const favouritetodo = await todoModel.find({favourite:true})
+        const favouritetodo = await todoModel.find({due_date:today})
         res.status(200).json({success:true, data:favouritetodo})
     } catch (error) {
         res.status(500).send(error.message);
@@ -140,11 +114,11 @@ const getDailytodo = asyncHandler(async(req, res)=>{
 })
 
 
-//getblock todo
+//getdone todo
 const getDonetodo = asyncHandler(async(req, res)=>{
     try {
-        const blockedtodo = await todoModel.find({blocked:true})
-        res.status(200).json({success:true, data:blockedtodo})
+        const donetodo = await todoModel.find({task_done:true})
+        res.status(200).json({success:true, data:donetodo})
     } catch (error) {
         res.status(500).send(error.message);
     }
@@ -158,7 +132,6 @@ module.exports= {
     updatetodo,
     deletetodo,
     markDonetodo,
-    favouritetodo,
     getDailytodo,
     getDonetodo,
 }
